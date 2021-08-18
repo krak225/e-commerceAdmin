@@ -1,0 +1,34 @@
+BEGIN
+
+DECLARE endStatut INT;
+DECLARE endMessage char(255);
+DECLARE reglement_id INT;
+DECLARE facture_solde INT;
+DECLARE cur1 CURSOR FOR SELECT facture_id FROM facture WHERE facture_id = id;
+
+
+OPEN cur1;
+
+-- read_loop: LOOP
+
+
+	FETCH Next from cur1 INTO facture_solde;
+    
+    select facture_solde;
+    
+	IF (facture_solde > 0 )THEN
+    
+    	
+        SELECT * 
+    
+        FROM facture
+    
+        WHERE facture_id = id;
+    
+    
+    END IF;
+    
+CLOSE cur1;
+
+
+END

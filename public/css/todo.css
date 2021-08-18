@@ -1,0 +1,99 @@
+/* Code By Webdevtrick ( https://webdevtrick.com ) */
+@import url("https://fonts.googleapis.com/css?family=Raleway:300,800");
+
+body .list {
+  position: relative;
+  width: 250px;
+  margin: 0px auto;
+  display: block;
+}
+body .list ::-webkit-input-placeholder {
+  color: #cecece;
+}
+body .list .input {
+  outline: none;
+  border: 1px solid white;
+  background-color: #53a8e6;
+  color: white;
+  height: 50px;
+  width: 250px;
+  padding-left: 10px;
+  font-family: "Raleway", sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  margin-left: -5px;
+}
+body .list span {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.8;
+  cursor: pointer;
+  transition: all 200ms;
+  color: white;
+  will-change: transform;
+}
+body .list span:hover {
+  transform: rotate(180deg);
+}
+body ul {
+  padding: 0px;
+}
+body ul .draggable {
+  will-change: transform;
+  font-family: "Raleway", sans-serif;
+  
+  height: auto;
+  list-style-type: none;
+  margin: 5px 0px;
+  background-color: white;
+  color: #212121;
+  padding: 7px 10px;
+  cursor: move;
+  transition: all 200ms;
+  user-select: none;
+  margin: 10px auto;
+  position: relative;
+}
+body ul .draggable:after {
+  content: 'drag me';
+  right: 7px;
+  /* font-size: 10px; */
+  position: absolute;
+  cursor: pointer;
+  transition: all 200ms;
+  transition-timing-function: cubic-bezier(0.48, 0.72, 0.62, 1.5);
+  transform: translateX(120%);
+  opacity: 0;
+}
+body ul .draggable:hover:after {
+  opacity: 1;
+  transform: translate(0);
+}
+
+.over {
+  transform: scale(1.1, 1.1);
+}
+
+
+div.todo-lists {height:350px;border:0px solid #eee;overflodw-y:auto;}
+div.todo-lists ul{padding:0px;margin:0px;}
+div.middleTasks {min-height:350px;}
+div.middleTasks {border-left:2px dotted #ddd;border-right:2px dotted #ddd;}
+div.todo-lists li:not(.new_item){box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);border-radius:4px;}
+
+div.firstTasks li:not(.new_item){border:0.4px solid #4cc0c1;}
+div.middleTasks li:not(.new_item){border:0.4px solid orange;}
+div.lastsTasks li:not(.new_item){border:0.4px solid #8ec165;}
+li.new_item {border:1px dotted #ddd;}
+li span.tache_libelle{display:inline-block;}
+li span.tache_dates{display:block;margin-top:5px;color:#2E3E4E;font-size:8.5px;text-align:right;font-family:'verdana';}
+
+.table_infos{width:100%;}
+.table_infos td{padding:5px;}
+
+span.btn-prolonger{color:orange;cursor:pointer;margin-left:25px;}
+
+span.diff_date{color:red;}
