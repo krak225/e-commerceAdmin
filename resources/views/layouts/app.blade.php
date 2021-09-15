@@ -29,6 +29,7 @@
 	<!-- CSRF Token -->
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<script type="text/javascript">
+
 		var csrf_token   =   $('meta[name="csrf-token"]').attr('content');
 		$.ajaxSetup({
 			headers: {"X-CSRF-TOKEN": csrf_token}
@@ -37,6 +38,50 @@
 	</script>
 
 </head>
+<script>
+
+navigator.permissions.query({name:'microphone'}).then(function(result) {
+  if (result.state == 'granted') {
+
+  } else if (result.state == 'prompt') {
+
+  } else if (result.state == 'denied') {
+
+  }
+  result.onchange = function() {
+
+  };
+});
+//alert(navigator.appCodeName);
+
+function handlePermission() {
+  navigator.permissions.query({name:'microphone'}).then(function(result) {
+    if (result.state == 'granted') {
+      report(result.state);
+      
+    } else if (result.state == 'prompt') {
+      report(result.state);
+      
+    } else if (result.state == 'denied') {
+      report(result.state);
+      
+    }
+    result.onchange = function() {
+      report(result.state);
+    }
+  });
+}
+
+function report(state) {
+  console.log('Permission ' + state);
+	alert(state);
+}
+
+handlePermission();
+
+</script>
+
+
 <body class="container"> 
 	<section class="vbox">
 		<header class="bg-primary header navbar navbar-fixed-top-xs"> 
@@ -327,7 +372,7 @@
 	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 	
-	<input type="hidden" id="eco_base_url" value="{{'http://'.$_SERVER['HTTP_HOST']}}/">
+	<input type="hidden" id="eco_base_url" value="{{'http://'.$_SERVER['HTTP_HOST']}}/helloshop-admin/public/">
  
  </body>
 </html>

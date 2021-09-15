@@ -58,7 +58,85 @@ class Model{
 		
 		return $data;
 	}
+
+
+	public function getEntreprises($entreprise_nom, $type_entreprise_id, $categorie){
+		
+		$sql = 'select *
+		from entreprise
+		where entreprise_statut="VALIDE" ';
+
+		
+		$sql .= !empty($entreprise_nom) ? ' AND entreprise_nom LIKE "%'.$entreprise_nom.'%" ' : '';
+		$sql .= !empty($type_entreprise_id) ? ' AND type_entreprise_id = "'.$type_entreprise_id.'" ' : '';
+		$sql .= !empty($categorie) ? ' AND type_entreprise_id = "'.$categorie.'" ' : '';
+
+		$sql .= ' order by entreprise_id desc ';
+			
+		$stm = $this->pdo->prepare($sql);
+		$stm->execute(array());
+		$data = $stm->fetchAll(PDO::FETCH_OBJ);
+		
+		
+		return $data;
+		
+	}
+
 	
+	public function getBannieres(){
+		
+		$sql = 'select *
+		from banniere
+		where banniere_statut="VALIDE" 
+		order by banniere_id desc ';
+		
+
+		$stm = $this->pdo->prepare($sql);
+		$stm->execute(array());
+		$data = $stm->fetchAll(PDO::FETCH_OBJ);
+		
+		//die(json_encode($data));
+
+		return $data;
+		
+	}
+
+	public function getTags(){
+		
+		$sql = 'select *
+		from tag
+		where tag_statut="VALIDE" 
+		order by tag_id desc 
+		limit 5';
+		
+
+		$stm = $this->pdo->prepare($sql);
+		$stm->execute(array());
+		$data = $stm->fetchAll(PDO::FETCH_OBJ);
+		
+
+		return $data;
+		
+	}
+
+	public function getCategories(){
+		
+		$sql = 'select *
+		from categorie
+		where categorie_statut="VALIDE" 
+		order by categorie_nom asc ';
+		
+		
+
+		$stm = $this->pdo->prepare($sql);
+		$stm->execute(array());
+		$data = $stm->fetchAll(PDO::FETCH_OBJ);
+		
+
+		return $data;
+		
+	}
+
 	public function getProduits($categorie_id=0){
 		
 		$sql = 'select produit.*, categorie_nom
@@ -104,6 +182,38 @@ class Model{
 		return $data;
 		
 	}
+
+	public function getAdressesLivraison($utilisateur_id){
+		
+		$sql = 'select * from dim_adresse 
+			where 1 
+		 and utilisateur_id = ? ';
+
+		$sql.= ' order by adresse_id desc ';
+		
+
+		$stm = $this->pdo->prepare($sql);
+		$stm->execute(array($utilisateur_id));
+		$data = $stm->fetchAll(PDO::FETCH_OBJ);
+		
+		
+		return $data;
+		
+	}
+
+
+	public function SaveAdresseLivraison($utilisateur_id, $adresse_nom, $adresse_batiment, $adresse_etage, $adresse_porte, $commune_id, $adresse_latitude, $adresse_longitude){
+		
+		$sql = 'insert into dim_adresse (utilisateur_id, commune_id, adresse_nom, adresse_batiment, adresse_etage, adresse_porte, adresse_latitude, adresse_longitude, adresse_date_creation) 
+		values("'.$utilisateur_id.'", "'.$commune_id.'", "'.$adresse_nom.'", "'.$adresse_batiment.'", "'.$adresse_etage.'", "'.$adresse_porte.'",  "'.$adresse_latitude.'",  "'.$adresse_longitude.'", "'.date('Y-m-d H:i:s').'")';
+		
+		$data = $this->insertDB($sql);
+		$course_id = $data->lastId;
+		
+		return $course_id;
+
+	}
+
 
 	public function getPhotos($produit_id){
 
@@ -198,13 +308,11 @@ class Model{
 		from produit 
 		inner join categorie using(categorie_id)
 		inner join panier using(produit_id) 
-		where session_id=? 
-		and commande_id = ?
-		and panier_statut=?
+		where commande_id = ?
 		';
-		//die($sql);
+		
 		$stm = $this->pdo->prepare($sql);
-		$stm->execute(array($session_id, $commande_id, "VALIDE"));
+		$stm->execute(array($commande_id));
 		$data = $stm->fetchAll(PDO::FETCH_OBJ);
 		
 		
@@ -246,6 +354,7 @@ class Model{
 
 	}
 
+
 	public function UpdatePanier($produit_id,$quantite,$session_id){
 
 		$sql = 'update panier set panier_quantite = "'.$quantite.'" where produit_id="'.$produit_id.'" and session_id="'.$session_id.'" and panier_statut="BROUILLON"';
@@ -270,14 +379,27 @@ class Model{
 
 	public function getCommandes($utilisateur_id){
 		
+		$sql = 'select * from utilisateur where utilisateur_id = ? ';
+
+		$stm = $this->pdo->prepare($sql);
+		$stm->execute(array($utilisateur_id));
+		$data1 = $stm->fetch(PDO::FETCH_OBJ);
+		$profil_id = $data1->profil_utlisateur_id;
+
+
+
 		$sql = 'select *
 		from commande 
 		inner join utilisateur using(utilisateur_id)
-		where utilisateur_id = "'.$utilisateur_id.'" ';
+		where 1 ';
 		
+		if($profil_id != 3){
+			$sql.= ' and  utilisateur_id = "'.$utilisateur_id.'" ';
+		}
+
 		$sql.= ' order by commande_id desc ';
 		
-		//die($sql);
+		//echo($profil_id);
 		
 		$stm = $this->pdo->prepare($sql);
 		$stm->execute(array($utilisateur_id));
@@ -289,6 +411,39 @@ class Model{
 		
 	}
 
+
+	public function savePanier($commande_id, $produit_id, $quantite){
+
+		//vérifier
+		$sql = 'select * from panier where produit_id = ? and commande_id = ? ';
+
+		$stm = $this->pdo->prepare($sql);
+		$stm->execute(array($produit_id, $commande_id));
+		$data = $stm->fetchAll(PDO::FETCH_OBJ);
+
+		if(empty($data)){
+
+			//récupérer le prix du produit et le mettre à jour dans le panier
+			$sql = 'select produit_prix from produit where produit_id = ? ';
+			$stm = $this->pdo->prepare($sql);
+			$stm->execute(array($produit_id));
+			$data = $stm->fetch(PDO::FETCH_OBJ);
+			$produit_prix = $data->produit_prix;
+
+			$sql = 'insert into panier (produit_id,panier_produit_pu,commande_id,panier_quantite) values("'.$produit_id.'","'.$produit_prix.'","'.$commande_id.'","'.$quantite.'")';
+
+		}else{
+
+			$sql = 'update panier set panier_quantite = panier_quantite + '.$quantite.' where produit_id="'.$produit_id.'" and commande_id="'.$commande_id.'" ';
+
+
+		}
+		
+		
+		return $this->insertDB($sql);
+
+	}
+	
 
 	//
 	public function saveUser($nom,$prenoms,$commune_id,$telephone,$email,$password){
@@ -319,33 +474,55 @@ class Model{
 		
 	}
 
-	public function SaveCommande($session_id,$client_id,$mode_paiement_id,$numero_compte){
+	public function SaveCommande($session_id,$client_id,$mode_paiement_id,$numero_compte, $adresse_id){
 
-		$total = $this->getTotalTPanier($session_id);
-
-		$montant = $total->montant;
-
-		$sql = 'insert into commande (utilisateur_id, commande_montant_ht, commande_montant_ttc, commande_date_creation) 
-		values("'.$client_id.'", "'.$montant.'", "'.$montant.'", "'.date('Y-m-d H:i:s').'")';
+		$montant = 0;
+		
+		$sql = 'insert into commande (utilisateur_id, adresse_id, commande_montant_ht, commande_montant_ttc, commande_date_creation) 
+		values("'.$client_id.'", "'.$adresse_id.'", "'.$montant.'", "'.$montant.'", "'.date('Y-m-d H:i:s').'")';
 
 
 		$data = $this->insertDB($sql);
 		$commande_id = $data->lastId;
 
-		$sql = 'update panier set commande_id = "'.$commande_id.'", panier_statut = "VALIDE" 
-		where session_id = "'.$session_id.'"
-		AND panier_statut="BROUILLON"
-		';
+		return $commande_id;
+
+	}
+
+	public function UpdateMontantCommande($commande_id){
+
+		
+		$sql = 'UPDATE commande 
+				INNER JOIN (SELECT commande_id, SUM(panier_produit_pu * panier_quantite) total_panier FROM panier WHERE commande_id = "'.$commande_id.'") panier  ON commande.commande_id = panier.commande_id 
+				SET commande_montant_ht = panier.total_panier, commande_montant_ttc = panier.total_panier ';
+
+
 		$data = $this->updateDB($sql);
+		
 
 	}
 
 
-	public function SaveCourse($utilisateur_id,$nature_course, $nom, $telephone, $date_retrait, $date_livraison, $commune_id_retrait, $commune_id_livraison, $frais_livraison){
+
+	public function UpdateStatutLivraison($utilisateur_id, $commande_id, $date_livraison, $commentaire){
+
+		$sql = 'update commande set commande_statut_livraison="LIVREE", commande_date_livraison= "'.dateToDB($date_livraison).'",  commande_commentaire_livraison = "'.$commentaire.'", utilisateur_id_livraison = "'.$utilisateur_id.'" where commande_id="'.$commande_id.'"';
+
+		//die($sql);
+
+		return $this->updateDB($sql);
+
+	}
+
+
+
+	public function SaveCourse($utilisateur_id,$nature_course, $nom, $telephone, $date_retrait, $date_livraison, $commune_id_retrait, $commune_id_livraison, $adresse_id_retrait, $adresse_id_livraison, $frais_livraison){
 		
-		$sql = 'insert into dim_course (utilisateur_id,nature_course, nom, telephone, date_retrait, date_livraison, commune_id_retrait, commune_id_livraison, frais_livraison,date_creation) 
-		values("'.$utilisateur_id.'", "'.$nature_course.'", "'.$nom.'", "'.$telephone.'", "'.$date_retrait.'", "'.$date_livraison.'", "'.$commune_id_retrait.'", "'.$commune_id_livraison.'", "'.$frais_livraison.'", "'.date('Y-m-d H:i:s').'")';
+		$sql = 'insert into dim_course (utilisateur_id,nature_course, nom, telephone, date_retrait, date_livraison, commune_id_retrait, commune_id_livraison, adresse_id_retrait, adresse_id_livraison, frais_livraison,date_creation) 
+		values("'.$utilisateur_id.'", "'.$nature_course.'", "'.$nom.'", "'.$telephone.'", "'.$date_retrait.'", "'.$date_livraison.'", "'.$commune_id_retrait.'", "'.$commune_id_livraison.'", "'.$adresse_id_retrait.'", "'.$adresse_id_livraison.'", "'.$frais_livraison.'", "'.date('Y-m-d H:i:s').'")';
 		
+		//die($sql);
+
 		$data = $this->insertDB($sql);
 		$course_id = $data->lastId;
 		

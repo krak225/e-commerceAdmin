@@ -55,6 +55,11 @@ Route::post('frais_livraison','ParametresController@SaveFraisLivraison')->name('
 Route::post('supprimer_frais_livraison','ParametresController@SupprimerFraisLivraison')->name('SupprimerFraisLivraison');
 
 
+Route::get('banniere','ParametresController@banniere')->name('banniere');
+Route::post('banniere','ParametresController@SaveBanniere')->name('SaveBanniere');
+Route::post('supprimer_banniere','ParametresController@SupprimerBanniere')->name('SupprimerBanniere');
+
+
 
 //
 Route::get('courses','ParametresController@courses')->name('courses');
